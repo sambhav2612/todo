@@ -110,11 +110,11 @@ export function List() {
                       defaultValue={(modalType === 'edit' && element.description) || ''}/>
             <input type="date" name="dueDate" required
                    defaultValue={(modalType === 'edit' && element.dueDate) || new Date().toISOString()}/>
-            <select defaultValue={modalType === 'edit' ? element.priority : "none"} name="priority" required>
-              <option value="none">None</option>
-              <option value="none">Low</option>
-              <option value="none">Medium</option>
-              <option value="none">High</option>
+            <select defaultValue={modalType === 'edit' ? element.priority : "None"} name="priority" required>
+              <option value="None">None</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
             </select>
             <button type="submit">Submit</button>
           </form>
