@@ -1,0 +1,17 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.list_row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: solid 1px;
+}
+
+.list_row_child {
+  margin-right: 10px;
+}
