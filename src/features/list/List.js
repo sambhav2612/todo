@@ -150,7 +150,7 @@ export function List() {
             <textarea placeholder="enter description" name="description" required
                       defaultValue={(modalType === 'edit' && element.description) || ''}/>
             <input type="date" name="dueDate" required
-                   defaultValue={(modalType === 'edit' && element.dueDate) || ''c}/>
+                   defaultValue={(modalType === 'edit' && element.dueDate) || ''}/>
             <select defaultValue={modalType === 'edit' ? element.priority : "None"} name="priority" required>
               <option value="None">None</option>
               <option value="Low">Low</option>
