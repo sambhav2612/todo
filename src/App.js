@@ -1,6 +1,7 @@
 import React from 'react';
 import { List } from './features/list/List';
 import './App.css';
+import 'antd/dist/antd.css';
 
 function App() {
   return (

@@ -12,47 +12,87 @@ import styles from './List.module.css';
 import Modal from 'react-modal';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import { Table } from 'antd';
+import moment from 'moment';
 
 export function List() {
+  const [sorter, changeSorting] = useState({});
   const [modalType, changeModalType] = useState('add');
   const [modalOpen, changeModalState] = useState(false);
 
   const list = useSelector(selectList);
-  let listCopy = list;
-  let pendingList = list && list.filter(ele => ele.status === 'pending');
-  let completedList = list && list.filter(ele => ele.status === 'completed');
+  const pendingList = list && list.filter(ele => ele.status === 'pending');
+  const completedList = list && list.filter(ele => ele.status === 'completed');
   const element = useSelector(selectElement);
   const dispatch = useDispatch();
 
-  function Element(props) {
-    return <div key={props.index + 1} className={styles.list_row}>
-      <p className={styles.list_row_child}><strong>Priority:</strong> {props.ele && props.ele.priority}</p>
-      <p className={styles.list_row_child}><strong>Title:</strong> {props.ele && props.ele.title}</p>
-      <p className={styles.list_row_child}><strong>Created On:</strong> {props.ele && props.ele.createdAt}</p>
-      <p className={styles.list_row_child}><strong>Due By:</strong> {props.ele && props.ele.dueDate}</p>
-      <button className={styles.list_row_child} onClick={() => {
-        const payload = {
-          ...element,
-          status: (props.ele && props.ele.status) === 'pending' ? 'completed' : 'pending'
-        };
-        dispatch(editToTodo({
-          id: element && element.id,
-          data: payload
-        }));
-      }}>
-        {((props.ele && props.ele.status) === 'pending' ? 'Close' : 'Open') + ' Task'}
-      </button>
-      <button className={styles.list_row_child} onClick={() => {
-        dispatch(getElement(props.ele && props.ele.id));
-        changeModalType('edit');
-        changeModalState(true);
-      }}>Edit</button>
-      <button className={styles.list_row_child} onClick={() => {
-        if (window.confirm("Are you sure you want to delete this listing?")) {
-          dispatch(deleteFromTodo(props.ele && props.ele.id));
-        }
-      }}>Delete</button>
-    </div>
+  const columns = [
+    {
+      title: 'Title',
+      dataIndex: 'title',
+      key: 'title',
+      sorter: (a, b) => a['title'] > b['title'] ? 1 : -1,
+      sortOrder: sorter.columnKey === 'title' && sorter.order,
+      ellipsis: true,
+    },
+    {
+      title: 'Priority',
+      dataIndex: 'priority',
+      key: 'priority',
+      sorter: (a, b) => a['priority'] > b['priority'] ? 1 : -1,
+      sortOrder: sorter.columnKey === 'priority' && sorter.order,
+      ellipsis: true,
+    },
+    {
+      title: 'Created On',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: (a, b) => a['createdAt'] > b['createdAt'] ? 1 : -1,
+      sortOrder: sorter.columnKey === 'createdAt' && sorter.order,
+      ellipsis: true,
+      render: (row) => <div>{moment(row.createdAt).format('DD/MM/YYYY')}</div>
+    },
+    {
+      title: 'Due By',
+      dataIndex: 'dueDate',
+      key: 'dueDate',
+      sorter: (a, b) => a['dueDate'] > b['dueDate'] ? 1 : -1,
+      sortOrder: sorter.columnKey === 'dueDate' && sorter.order,
+      ellipsis: true,
+      render: (row) => <div>{moment(row.dueDate).format('DD/MM/YYYY')}</div>
+    },
+    {
+      title: 'Actions',
+      key: 'action',
+      render: (row) => <div>
+        <button className={styles.list_row_child} onClick={() => {
+          const payload = {
+            ...row,
+            status: (row.status) === 'pending' ? 'completed' : 'pending'
+          };
+          dispatch(editToTodo({
+            id: row.id,
+            data: payload
+          }));
+        }}>
+          {((row.status) === 'pending' ? 'Close' : 'Open') + ' Task'}
+        </button>
+        <button className={styles.list_row_child} onClick={() => {
+          dispatch(getElement(row.id));
+          changeModalType('edit');
+          changeModalState(true);
+        }}>Edit</button>
+        <button onClick={() => {
+          if (window.confirm("Are you sure you want to delete this listing?")) {
+            dispatch(deleteFromTodo(row.id));
+          }
+        }}>Delete</button>
+      </div>
+    }
+  ];
+
+  function onTableChange(pagination, filters, sorter) {
+    changeSorting(sorter);
   }
 
   return (
@@ -70,13 +110,13 @@ export function List() {
           </TabList>
 
           <TabPanel>
-            {(listCopy && listCopy.reverse().map((ele, index) => <Element index={index} ele={ele}/>)) || <p>No tasks created!</p>}
+            {(list && list.length > 0 && <Table columns={columns || []} dataSource={list || []} onChange={onTableChange}/>) || <p>No tasks created!</p>}
           </TabPanel>
           <TabPanel>
-            {(pendingList.length > 0 && pendingList.reverse().map((ele, index) => <Element index={index} ele={ele}/>)) || <p>No pending tasks created!</p>}
+            {(pendingList && pendingList.length > 0 && <Table columns={columns || []} dataSource={pendingList || []} onChange={onTableChange}/>) || <p>No pending tasks created!</p>}
           </TabPanel>
           <TabPanel>
-            {(completedList.length > 0 && completedList.reverse().map((ele, index) => <Element index={index} ele={ele}/>)) || <p>No completed tasks created!</p>}
+            {(completedList && completedList.length > 0 && <Table columns={columns || []} dataSource={completedList || []} onChange={onTableChange}/>) || <p>No completed tasks created!</p>}
           </TabPanel>
         </Tabs>
       </div>
@@ -94,7 +134,8 @@ export function List() {
               description: form.elements.description.value,
               dueDate: form.elements.dueDate.value,
               priority: form.elements.priority.value,
-              status: 'pending'
+              status: 'pending',
+              createdAt: modalType === 'add' ? new Date().toISOString() : element.createdAt,
             }
             modalType === 'add'
                 ? dispatch(addToTodo(payload))
@@ -109,7 +150,7 @@ export function List() {
             <textarea placeholder="enter description" name="description" required
                       defaultValue={(modalType === 'edit' && element.description) || ''}/>
             <input type="date" name="dueDate" required
-                   defaultValue={(modalType === 'edit' && element.dueDate) || new Date().toISOString()}/>
+                   defaultValue={(modalType === 'edit' && element.dueDate) || ''c}/>
             <select defaultValue={modalType === 'edit' ? element.priority : "None"} name="priority" required>
               <option value="None">None</option>
               <option value="Low">Low</option>

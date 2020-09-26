@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 export const reducer = createSlice({
   name: 'list',
@@ -18,8 +19,7 @@ export const reducer = createSlice({
     addToTodo: (state, action) => {
       action.payload = {
         ...action.payload,
-        id: state.list.length <= 0 ? 1 : ++state.list[state.list.length - 1].id,
-        createdAt: new Date().toISOString(),
+        id: uuidv4(),
         updatedAt: new Date().toISOString()
       };
       state.list = [...state.list, action.payload];
