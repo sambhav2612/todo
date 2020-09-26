@@ -134,7 +134,7 @@ export function List() {
               description: form.elements.description.value,
               dueDate: form.elements.dueDate.value,
               priority: form.elements.priority.value,
-              status: 'pending',
+              status: modalType === 'add' ? 'pending' : element.status,
               createdAt: modalType === 'add' ? new Date().toISOString() : element.createdAt,
             }
             modalType === 'add'
