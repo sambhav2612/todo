@@ -15,4 +15,6 @@ jobs:
           node-version: 12
       - run: npm -v
       - run: npm install
+      - run: git config user.email "sambhavjain2612@gmail.com"
+      - run: git config user.name "Sambhav Jain"
       - run: npm run deploy
