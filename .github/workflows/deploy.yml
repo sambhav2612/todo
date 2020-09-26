@@ -3,9 +3,7 @@
 
 name: To Do App
 
-on:
-  release:
-    types: [created]
+on: [push, pull_request]
 
 jobs:
   deploy:
